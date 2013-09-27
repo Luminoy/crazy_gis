@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="search.css"/>
+<link type="text/css" rel="stylesheet" href="school.css"/>
+<script type="text/javascript" src="school.js"></script>
+<script type="text/javascript" src="jquery-1.8.0.js"></script>
+<script type="text/javascript">
+
+function hide()
+{
+	$('#choose-box-wrapper').css("display","none");
+	$('#ly').css("display","none");
+}
+function initProvince()
+{
+	$('#choose-a-province').html('');
+	for(i=0;i < schoolList.length;i++)
+	{
+		$('#choose-a-province').append('<a class="province-item" province-id="' + schoolList[i].id + '">' + schoolList[i].name + '</a>');
+	}
+	$('.province-item').bind('click',function(){
+		var item = $(this);
+		var province = item.attr('province-id');
+		var choosenItem = item.parent().find('.choosen');
+		if(choosenItem)
+			$(choosenItem).removeClass('choosen');
+		item.addClass('choosen');
+		initSchool(province);
+	});
+}
+function initSchool(provinceID)
+{
+	$('#choose-a-school').html('');
+	var schools = schoolList[provinceID-1].school;
+	//$('#choose-a-school').append('<ul>');
+	for(i=0;i < schools.length;i++)
+		$('#choose-a-school').append('<li><a class="school-item" school-id="' + schools[i].id +'">' + schools[i].name + '</a></li>');
+	//$('#choose-a-school').append('</ul>');
+	$('.school-item').bind('click',function(){
+		var item=$(this);
+		var school = item.attr('school-id');
+		$('#school-name').val(item.text());
+		hide();
+	});
+}
+
+function makeCenter()
+{
+	$('#ly').css("display","block");
+	$('#choose-box-wrapper').css("display","block");
+	$('#choose-box-wrapper').css("position","absolute");
+	$('#choose-box-wrapper').css("top",event.clientY + "px");
+	$('#choose-box-wrapper').css("left",event.clientX + "px");
+	//$('#choose-box-wrapper').css("top",Math.max(0,($(window).height() - $('#choose-box-wrapper').outerHeight()) / 2 + $(window).scrollTop()) + "px");
+	//$('#choose-box-wrapper').css("left",Math.max(0,($(window).width() - $('#choose-box-wrapper').outerWidth()) / 2 + $(window).scrollLeft()) + "px");
+}
+function getEvent() {
+    return window.event;// | arguments.callee.caller.arguments[0];
+}
+function pop()
+{
+	makeCenter();
+	initProvince();
+	initSchool(1);
+
+	var moveX = 0;
+	var moveY = 0;
+	var moveLeft = 0;
+	var moveTop = 0;
+	var moveable = false;
+
+	var mouseMoveEvent = document.onmousemove;
+	var mouseUpEvent = document.onmouseup;
+	var choose_box_title1 = document.getElementById('choose-box-title');
+	var choose_box_wrapper1 = document.getElementById('choose-box-wrapper');
+	choose_box_title1.onmousedown = function () {
+	    moveable = true;
+	    var evt = getEvent();
+	    moveX = window.event.clientX;
+	    moveY = window.event.clientY;
+	    moveTop = parseInt(choose_box_wrapper1.style.top);
+	    moveLeft = parseInt(choose_box_wrapper1.style.left);
+
+	    document.onmousemove = function () {
+	        if (moveable) {
+	            var evt = getEvent();
+	            var x = moveLeft + window.event.clientX - moveX;
+	            var y = moveTop + window.event.clientY - moveY;
+	            //if (x > 0 && (x + box_width) < iWidth && y > 0 && (y + box_height) < iHeight) {
+	                choose_box_wrapper1.style.top = y + "px";
+	                choose_box_wrapper1.style.left = x + "px";
+	            //}
+	        }
+
+	    };
+	
+		document.onmouseup = function () {
+			document.onmouseup = mouseUpEvent;
+			document.onmousemove = mouseMoveEvent;
+			moveable = false;
+			moveX = 0;
+			moveY = 0;
+			moveLeft = 0;
+			moveTop = 0;
+		};
+	};
+}
+</script>
+</head>
+<body onload="hide()">
+	<div id="ly"></div>
+	<form class="form-wrapper" action="#" style="z-index:1">
+		<input type="text" id="school-name" class="search" placeholder="Choose Your School ..." required onclick="pop()"/>
+		<input type="submit" id="submit" value="GO" />
+	</form>
+	<div id="choose-box-wrapper"style="z-index:3">
+		<div id="choose-box">
+			<div id="choose-box-title">
+			<span>choose a school</span>
+			
+			</div>
+			<div id="choose-a-province">
+			
+			</div>
+			<div id="choose-a-school">
+			</div>
+			<div id="choose-box-bottom">
+				<div id="box-close" onclick="hide()" >
+					<span>CLOSE</span>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+</body>
+</html>
